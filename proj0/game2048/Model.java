@@ -106,13 +106,78 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
+    public void column (){
+    }
+
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
+        board.setViewingPerspective(side);
 
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        for (int c = 0; c < board.size(); c = c + 1){
+            for (int r = 2; r >= 0; r = r - 1) {
+                Tile t = board.tile(c, r);
+                if (t != null && r==2 && board.tile(c, 3) == null) {
+                    board.move(c, 3, t);
+                    changed = true;
+                } else if (t != null && r==2 && board.tile(c, 3) != null && t.value() == board.tile(c, 3).value()){
+                    board.move(c, 3, t);
+                    score += board.tile(c, 3).value();
+                    changed = true;
+                    Tile i = board.tile(c, 1);
+                    if (i != null && i.value() == board.tile(c, 3).value()){
+                        board.move(c, 2, i);
+                    }
+                    Tile l = board.tile(c, 0);
+                    if (l != null && board.tile(c, 1) == null && l.value() == board.tile(c, 3).value()){
+                        board.move(c, 2, l);
+                    }
+                } else if (t != null && r==1 && board.tile(c, 2) == null && board.tile(c, 3) == null) {
+                    board.move(c, 3, t);
+                    changed = true;
+                } else if (t != null && r==1 && board.tile(c, 2) == null && board.tile(c, 3) != null && t.value() != board.tile(c, 3).value()) {
+                    board.move(c, 2, t);
+                    changed = true;
+                } else if (t != null && r==1 && board.tile(c, 2) == null && board.tile(c, 3) != null && t.value() == board.tile(c, 3).value()){
+                    board.move(c, 3, t);
+                    score += board.tile(c, 3).value();
+                    changed = true;
+                } else if (t != null && r==1 && board.tile(c, 2) != null && t.value() == board.tile(c, 2).value()){
+                    board.move(c, 2, t);
+                    score += board.tile(c, 2).value();
+                    changed = true;
+                    Tile i = board.tile(c, 0);
+                    if (i != null && i.value() == board.tile(c, 2).value()){
+                        board.move(c, 1, i);
+                    }
+                } else if (t != null && r==0 && board.tile(c, 1) == null && board.tile(c, 2) == null && board.tile(c, 3) == null) {
+                    board.move(c, 3, t);
+                    changed = true;
+                } else if (t != null && r==0 && board.tile(c, 1) == null && board.tile(c, 2) == null && board.tile(c, 3) != null && t.value() == board.tile(c, 3).value()) {
+                    board.move(c, 3, t);
+                    score += board.tile(c, 3).value();
+                    changed = true;
+                } else if (t != null && r==0 && board.tile(c, 1) == null && board.tile(c, 2) == null){
+                    board.move(c, 2, t);
+                    changed = true;
+                } else if (t != null && r==0 && board.tile(c, 1) == null && board.tile(c, 2) != null && t.value() == board.tile(c, 2).value()){
+                    board.move(c, 2, t);
+                    score += board.tile(c, 2).value();
+                    changed = true;
+                } else if (t != null && r==0 && board.tile(c, 1) == null && board.tile(c, 2) != null && t.value() != board.tile(c, 2).value()){
+                    board.move(c, 1, t);
+                    changed = true;
+                } else if (t != null && r==0 && board.tile(c, 1) != null && t.value() == board.tile(c, 1).value()){
+                    board.move(c, 1, t);
+                    score += board.tile(c, 1).value();
+                    changed = true;
+                }
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
@@ -138,6 +203,13 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i = i + 1){
+            for (int j = 0; j < b.size(); j = j + 1) {
+                if (b.tile(i, j) == null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +220,15 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i = i + 1){
+            for (int j = 0; j < b.size(); j = j + 1) {
+                if (b.tile(i, j) != null){
+                    if (b.tile(i, j).value() == MAX_PIECE){
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -159,6 +240,22 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if (emptySpaceExists(b)){
+            return true;
+        }
+        for (int i = 0; i < b.size(); i = i + 1){
+            for (int j = 0; j < b.size(); j = j + 1) {
+                if (i - 1 >= 0 && b.tile(i - 1, j).value() == b.tile(i, j).value()){
+                        return true;
+                } else if (i + 1 < b.size() && b.tile(i + 1, j).value() == b.tile(i, j).value()){
+                        return true;
+                } else if (j - 1 >= 0 && b.tile(i, j - 1).value() == b.tile(i, j).value()) {
+                        return true;
+                } else if (j + 1 < b.size() && b.tile(i, j + 1).value() == b.tile(i, j).value()) {
+                        return true;
+                }
+            }
+        }
         return false;
     }
 
