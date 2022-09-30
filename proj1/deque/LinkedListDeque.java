@@ -1,2 +1,4 @@
-package deque;public class LinkedListDeque {
+package deque;
+
+public class LinkedListDeque {
 }
