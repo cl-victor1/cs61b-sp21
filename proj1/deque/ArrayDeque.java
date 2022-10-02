@@ -41,16 +41,29 @@ public class ArrayDeque<Pig> {
         if (size == 0) {
             return null;
         }
-        Pig first = items[nextFirst + 1];
-        size--;
-        return first;
+        if (nextFirst + 1 >= items.length) {
+            Pig first = items[0];
+            size--;
+            return first;
+        } else {
+            Pig first = items[nextFirst + 1];
+            items[nextFirst + 1] = null;
+            size--;
+            return first;
+        }
     }
     public Pig removeLast() {
         if (size == 0) {
             return null;
         }
-        Pig last = items[nextLast - 1];
-        size--;
-        return last;
+        if (nextLast - 1 < 0) {
+            Pig last = items[items.length - 1];
+            size--;
+            return last;
+        } else {
+            Pig last = items[nextLast - 1];
+            size--;
+            return last;
+        }
     }
 }
