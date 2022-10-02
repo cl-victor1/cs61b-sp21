@@ -15,7 +15,14 @@ public class ArrayDequeTest {
         lld1.addFirst("777");
         lld1.addFirst("888");
         lld1.removeLast();
+        lld1.removeLast();
+        lld1.removeLast();
+        lld1.removeLast();
+        lld1.removeLast();
+        lld1.removeLast();
+        lld1.removeLast();
+        lld1.removeLast();
 
-        assertEquals("111", lld1.get(4));
+        assertEquals(null, lld1.get(4));
     }
 }

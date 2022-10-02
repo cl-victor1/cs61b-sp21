@@ -44,11 +44,12 @@ public class ArrayDeque<Pig> {
         if (nextFirst + 1 >= items.length) {
             Pig first = items[0];
             size--;
+            nextFirst = 0;
             return first;
         } else {
             Pig first = items[nextFirst + 1];
-            items[nextFirst + 1] = null;
             size--;
+            nextFirst++;
             return first;
         }
     }
@@ -59,10 +60,12 @@ public class ArrayDeque<Pig> {
         if (nextLast - 1 < 0) {
             Pig last = items[items.length - 1];
             size--;
+            nextLast = items.length - 1;
             return last;
         } else {
             Pig last = items[nextLast - 1];
             size--;
+            nextLast--;
             return last;
         }
     }
