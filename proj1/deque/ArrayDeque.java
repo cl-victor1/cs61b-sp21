@@ -38,11 +38,17 @@ public class ArrayDeque<Pig> {
         return size() == 0;
     }
     public Pig removeFirst() {
+        if (size == 0) {
+            return null;
+        }
         Pig first = items[nextFirst + 1];
         size--;
         return first;
     }
     public Pig removeLast() {
+        if (size == 0) {
+            return null;
+        }
         Pig last = items[nextLast - 1];
         size--;
         return last;
