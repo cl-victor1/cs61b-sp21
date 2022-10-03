@@ -1,5 +1,7 @@
 package deque;
 
+import java.util.Iterator;
+
 public interface Deque<Pig>  {
     void addFirst(Pig pig);
 
@@ -18,4 +20,7 @@ public interface Deque<Pig>  {
     void printDeque();
 
     Pig get(int position);
+
+
+    Iterator<Pig> iterator();
 }

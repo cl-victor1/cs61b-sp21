@@ -1,5 +1,8 @@
 package deque;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 public class ArrayDeque<Pig> implements Deque<Pig> {
     private Pig[] items;
     private int size;
@@ -105,6 +108,10 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
         System.arraycopy(items, nextFirst + 1, array, 0, size - nextFirst - 1);
         System.arraycopy(items, 0, array, size - nextFirst - 1, nextFirst + 1);
         items = array;
+    }
+    @Override
+    public Iterator<Pig> iterator() {
+        return Arrays.stream(items).iterator();
     }
 
 }

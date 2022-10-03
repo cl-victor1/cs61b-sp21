@@ -2,22 +2,22 @@ package deque;
 
 import java.util.Comparator;
 
-public class MaxArrayDeque<Pig> extends ArrayDeque<Pig> {
+public class MaxArrayDeque<T> extends ArrayDeque<T> {
 
-    private Comparator<Pig> MaxArrayDequeComparator;
+    private Comparator<T> MaxArrayDequeComparator;
 
-    public MaxArrayDeque(Comparator<Pig> c) {
+    public MaxArrayDeque(Comparator<T> c) {
 
         MaxArrayDequeComparator = c;
     }
 
     /** Returns the maximum element in the deque using class comparator */
-    public Pig max() {
+    public T max() {
         return max(MaxArrayDequeComparator);
     }
 
     /** Returns the maximum element in the deque using passed comparator */
-    public Pig max(Comparator<Pig> c) {
+    public T max(Comparator<T> c) {
         if (isEmpty()) {
             return null;
         }

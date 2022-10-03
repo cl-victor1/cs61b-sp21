@@ -1,6 +1,8 @@
 package deque;
 
 
+import java.util.Iterator;
+
 public class LinkedListDeque<Pig> implements Deque<Pig> {
     private Node sentinel = new Node();
     private int size;
@@ -137,5 +139,9 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
             index = index.next;
             return getRecursive(pos - 1);
         }
+    }
+    @Override
+    public Iterator<Pig> iterator() {
+        return iterator();
     }
 }
