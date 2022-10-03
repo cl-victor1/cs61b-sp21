@@ -61,11 +61,11 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
         if (size == 0) {
             return null;
         }
-        if ((float)size / items.length < 0.25) {
+        /*if ((float)size / items.length < 0.25) {
             resize(size / 2);
             nextFirst = items.length - 1;
             nextLast = size;
-        }
+        }*/
         if (nextFirst + 1 >= items.length) {
             Pig first = items[0];
             size--;
@@ -83,11 +83,11 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
         if (size == 0) {
             return null;
         }
-        if ((float)size / items.length < 0.25) {
+        /*if ((float)size / items.length < 0.25) {
             resize(size / 2);
             nextFirst = items.length - 1;
             nextLast = size;
-        }
+        }*/
         if (nextLast - 1 < 0) {
             Pig last = items[items.length - 1];
             size--;
