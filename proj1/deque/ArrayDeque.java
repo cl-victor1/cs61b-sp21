@@ -6,10 +6,14 @@ import java.util.Iterator;
 public class ArrayDeque<Pig> implements Deque<Pig> {
     private Pig[] items;
     private int size;
-    private int nextFirst = 4;
-    private int nextLast = 5;
+    private int nextFirst = 0;
+    private int nextLast = 1;
     public ArrayDeque() {
         items = (Pig []) new Object[8];
+        size = 0;
+    }
+    public ArrayDeque(int capacity) {
+        items = (Pig []) new Object[capacity];
         size = 0;
     }
     @Override

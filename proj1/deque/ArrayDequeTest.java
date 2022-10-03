@@ -21,7 +21,7 @@ public class ArrayDequeTest {
         lld1.addFirst(8);
         lld1.addLast(9);
 
-        assertEquals(9, (long)lld1.get(8));
+        assertEquals(1, (long)lld1.get(8));
     }
 
     @Test
