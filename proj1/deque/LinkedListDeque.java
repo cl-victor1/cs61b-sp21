@@ -140,8 +140,8 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
             return getRecursive(pos - 1);
         }
     }
-    @Override
+
     public Iterator<Pig> iterator() {
-        return iterator();
+        return null;
     }
 }

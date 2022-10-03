@@ -22,5 +22,7 @@ public interface Deque<Pig>  {
     Pig get(int position);
 
 
-    Iterator<Pig> iterator();
+    default Iterator<Pig> iterator() {
+        return null;
+    };
 }

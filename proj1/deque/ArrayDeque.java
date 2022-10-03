@@ -109,7 +109,7 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
         System.arraycopy(items, 0, array, size - nextFirst - 1, nextFirst + 1);
         items = array;
     }
-    @Override
+
     public Iterator<Pig> iterator() {
         return Arrays.stream(items).iterator();
     }
