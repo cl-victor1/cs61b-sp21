@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 
 public class ArrayDequeTest {
     @Test
-    public void removeFirst() {
+    public void getFirst() {
 
         ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
         lld1.addFirst(1);
@@ -19,10 +19,9 @@ public class ArrayDequeTest {
         lld1.addFirst(6);
         lld1.addFirst(7);
         lld1.addFirst(8);
-        lld1.addFirst(9);
-        lld1.addLast(10);
+        lld1.addLast(9);
 
-        assertEquals(5, (long)lld1.get(3));
+        assertEquals(9, (long)lld1.get(8));
     }
 
     @Test

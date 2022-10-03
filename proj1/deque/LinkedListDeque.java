@@ -7,9 +7,9 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
     private Node sentinel = new Node();
     private int size;
     public class Node {
-        public Pig item;
-        public Node next;
-        public Node prev;
+        private Pig item;
+        private Node next;
+        private Node prev;
         public Node (){
         }
         public Node (Pig object){

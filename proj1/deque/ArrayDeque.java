@@ -6,8 +6,8 @@ import java.util.Iterator;
 public class ArrayDeque<Pig> implements Deque<Pig> {
     private Pig[] items;
     private int size;
-    public int nextFirst = 4;
-    public int nextLast = 5;
+    private int nextFirst = 4;
+    private int nextLast = 5;
     public ArrayDeque() {
         items = (Pig []) new Object[8];
         size = 0;
@@ -44,7 +44,12 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
     }
     @Override
     public Pig get(int pos) {
-        return items[pos];
+        if (nextFirst + pos  + 1 < items.length) {
+            return items[nextFirst + pos  + 1];
+        } else {
+            return items[nextFirst + pos  + 1 - items.length];
+        }
+
     }
     @Override
     public int size() {
@@ -55,6 +60,11 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
     public Pig removeFirst() {
         if (size == 0) {
             return null;
+        }
+        if ((float)size / items.length < 0.25) {
+            resize(size / 2);
+            nextFirst = items.length - 1;
+            nextLast = size;
         }
         if (nextFirst + 1 >= items.length) {
             Pig first = items[0];
@@ -72,6 +82,11 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
     public Pig removeLast() {
         if (size == 0) {
             return null;
+        }
+        if ((float)size / items.length < 0.25) {
+            resize(size / 2);
+            nextFirst = items.length - 1;
+            nextLast = size;
         }
         if (nextLast - 1 < 0) {
             Pig last = items[items.length - 1];
