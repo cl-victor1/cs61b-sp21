@@ -1,6 +1,6 @@
 package deque;
 
-public class ArrayDeque<Pig> {
+public class ArrayDeque<Pig> implements Deque<Pig> {
     private Pig[] items;
     private int size;
     public int nextFirst = 4;
@@ -9,7 +9,13 @@ public class ArrayDeque<Pig> {
         items = (Pig []) new Object[8];
         size = 0;
     }
+    @Override
     public void addFirst(Pig item) {
+        if (size == items.length) {
+            resize(size * 2);
+            nextFirst = items.length - 1;
+            nextLast = size;
+        }
         items[nextFirst] = item;
         size++;
         if (nextFirst - 1 >= 0) {
@@ -18,7 +24,13 @@ public class ArrayDeque<Pig> {
             nextFirst = items.length - 1;
         }
     }
+    @Override
     public void addLast(Pig item) {
+        if (size == items.length) {
+            resize(size * 2);
+            nextFirst = items.length - 1;
+            nextLast = size;
+        }
         items[nextLast] = item;
         size++;
         if (nextLast + 1 < items.length) {
@@ -27,16 +39,16 @@ public class ArrayDeque<Pig> {
             nextLast = 0;
         }
     }
+    @Override
     public Pig get(int pos) {
         return items[pos];
     }
-
+    @Override
     public int size() {
         return size;
     }
-    public boolean isEmpty() {
-        return size() == 0;
-    }
+
+    @Override
     public Pig removeFirst() {
         if (size == 0) {
             return null;
@@ -53,6 +65,7 @@ public class ArrayDeque<Pig> {
             return first;
         }
     }
+    @Override
     public Pig removeLast() {
         if (size == 0) {
             return null;
@@ -69,4 +82,29 @@ public class ArrayDeque<Pig> {
             return last;
         }
     }
+    @Override
+    public void printDeque() {
+        int index = nextFirst + 1;
+        int printed = 0;
+        while (printed < size) {
+            if (nextFirst + 1 >= items.length) {
+                Pig first = items[0];
+                System.out.println(first);
+                printed++;
+                nextFirst = 0;
+            } else {
+                Pig first = items[nextFirst + 1];
+                System.out.println(first);
+                printed++;
+                nextFirst++;
+            }
+        }
+    }
+    private void resize(int capacity) {
+        Pig[] array = (Pig []) new Object[capacity];
+        System.arraycopy(items, nextFirst + 1, array, 0, size - nextFirst - 1);
+        System.arraycopy(items, 0, array, size - nextFirst - 1, nextFirst + 1);
+        items = array;
+    }
+
 }

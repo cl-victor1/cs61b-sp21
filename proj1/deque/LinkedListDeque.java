@@ -1,9 +1,7 @@
 package deque;
 
 
-import java.util.Arrays;
-
-public class LinkedListDeque<Pig> {
+public class LinkedListDeque<Pig> implements Deque<Pig> {
     private Node sentinel = new Node();
     private int size;
     public class Node {
@@ -23,6 +21,7 @@ public class LinkedListDeque<Pig> {
 
     public LinkedListDeque() {
     }
+    @Override
     public void addFirst(Pig pig) {
         Node item = new Node(pig);
         Node temp = sentinel.next;
@@ -37,6 +36,7 @@ public class LinkedListDeque<Pig> {
         }
         this.size++;
     }
+    @Override
     public void addLast(Pig pig) {
         Node item = new Node(pig);
         if (sentinel.prev == null) {
@@ -53,6 +53,7 @@ public class LinkedListDeque<Pig> {
         }
         this.size++;
     }
+    @Override
     public Pig removeFirst() {
         if (sentinel.next == null) {
             return null;
@@ -73,6 +74,7 @@ public class LinkedListDeque<Pig> {
         this.size--;
         return value;
     }
+    @Override
     public Pig removeLast() {
         if (sentinel.prev == null) {
             return null;
@@ -93,12 +95,12 @@ public class LinkedListDeque<Pig> {
         this.size--;
         return value;
     }
-    public boolean isEmpty() {
-        return this.size == 0;
-    }
+
+    @Override
     public int size() {
         return this.size;
     }
+    @Override
     public void printDeque() {
         int index = 0;
         Node start = sentinel;
@@ -108,6 +110,7 @@ public class LinkedListDeque<Pig> {
             index++;
         }
     }
+    @Override
     public Pig get(int position) {
         if (position >= size()) {
             return null;
