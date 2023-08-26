@@ -1,6 +1,5 @@
 package deque;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
@@ -71,11 +70,11 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (size == 0) {
             return null;
         }
-        /*if ((float)size / items.length < 0.25) {
+        if ((float)size / items.length < 0.25) {
             resize(size / 2);
             nextFirst = items.length - 1;
             nextLast = size;
-        }*/
+        }
         if (nextFirst + 1 >= items.length) {
             T first = items[0];
             size--;
@@ -94,11 +93,11 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (size == 0) {
             return null;
         }
-        /*if ((float)size / items.length < 0.25) {
+        if ((float)size / items.length < 0.25) {
             resize(size / 2);
             nextFirst = items.length - 1;
             nextLast = size;
-        }*/
+        }
         if (nextLast - 1 < 0) {
             T last = items[items.length - 1];
             size--;
@@ -133,13 +132,13 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     private void resize(int capacity) {
         T[] array = (T []) new Object[capacity];
-        System.arraycopy(items, nextFirst + 1, array, 0, size - nextFirst - 1);
-        System.arraycopy(items, 0, array, size - nextFirst - 1, nextFirst + 1);
+        System.arraycopy(items, nextFirst + 1, array, 0, items.length - nextFirst - 1);
+        System.arraycopy(items, 0, array, items.length - nextFirst - 1, nextLast);
         items = array;
     }
 
     private class ArrayIterator implements Iterator<T> {
-        public int pos;
+        private int pos;
         public ArrayIterator() {
             pos = 0;
         }
@@ -166,10 +165,10 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (this == o) {
             return true;
         }
-        if (o == null){
+        if (o == null) {
             return false;
         }
-        if (this.getClass() != o.getClass()){
+        if (this.getClass() != o.getClass()) {
             return false;
         }
         ArrayDeque<T> other = (ArrayDeque<T>) o;

@@ -6,13 +6,12 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private Node sentinel = new Node();
     private int size;
 
-    public class Node {
+    private class Node {
         private T item;
         private Node next;
         private Node prev;
-        public Node (){
-        }
-        public Node (T object){
+        public Node () {}
+        public Node (T object) {
             this.item = object;
         }
         public Node (T object, Node n) {
@@ -175,7 +174,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         if (o == null) {
             return false;
         }
-        if (this.getClass() != o.getClass()){
+        if (this.getClass() != o.getClass()) {
             return false;
         }
         LinkedListDeque<T> other = (LinkedListDeque<T>) o;
