@@ -3,21 +3,24 @@ package deque;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class ArrayDeque<Pig> implements Deque<Pig> {
-    private Pig[] items;
+public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
+    private T[] items;
     private int size;
     private int nextFirst = 0;
     private int nextLast = 1;
+
     public ArrayDeque() {
-        items = (Pig []) new Object[8];
+        items = (T []) new Object[8];
         size = 0;
     }
+
     public ArrayDeque(int capacity) {
-        items = (Pig []) new Object[capacity];
+        items = (T []) new Object[capacity];
         size = 0;
     }
+
     @Override
-    public void addFirst(Pig item) {
+    public void addFirst(T item) {
         if (size == items.length) {
             resize(size * 2);
             nextFirst = items.length - 1;
@@ -31,8 +34,9 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
             nextFirst = items.length - 1;
         }
     }
+
     @Override
-    public void addLast(Pig item) {
+    public void addLast(T item) {
         if (size == items.length) {
             resize(size * 2);
             nextFirst = items.length - 1;
@@ -46,8 +50,9 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
             nextLast = 0;
         }
     }
+
     @Override
-    public Pig get(int pos) {
+    public T get(int pos) {
         if (nextFirst + pos  + 1 < items.length) {
             return items[nextFirst + pos  + 1];
         } else {
@@ -55,13 +60,14 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
         }
 
     }
+
     @Override
     public int size() {
         return size;
     }
 
     @Override
-    public Pig removeFirst() {
+    public T removeFirst() {
         if (size == 0) {
             return null;
         }
@@ -71,19 +77,20 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
             nextLast = size;
         }*/
         if (nextFirst + 1 >= items.length) {
-            Pig first = items[0];
+            T first = items[0];
             size--;
             nextFirst = 0;
             return first;
         } else {
-            Pig first = items[nextFirst + 1];
+            T first = items[nextFirst + 1];
             size--;
             nextFirst++;
             return first;
         }
     }
+
     @Override
-    public Pig removeLast() {
+    public T removeLast() {
         if (size == 0) {
             return null;
         }
@@ -93,44 +100,87 @@ public class ArrayDeque<Pig> implements Deque<Pig> {
             nextLast = size;
         }*/
         if (nextLast - 1 < 0) {
-            Pig last = items[items.length - 1];
+            T last = items[items.length - 1];
             size--;
             nextLast = items.length - 1;
             return last;
         } else {
-            Pig last = items[nextLast - 1];
+            T last = items[nextLast - 1];
             size--;
             nextLast--;
             return last;
         }
     }
+
     @Override
     public void printDeque() {
         int index = nextFirst + 1;
         int printed = 0;
         while (printed < size) {
             if (nextFirst + 1 >= items.length) {
-                Pig first = items[0];
+                T first = items[0];
                 System.out.println(first);
                 printed++;
                 nextFirst = 0;
             } else {
-                Pig first = items[nextFirst + 1];
+                T first = items[nextFirst + 1];
                 System.out.println(first);
                 printed++;
                 nextFirst++;
             }
         }
     }
+
     private void resize(int capacity) {
-        Pig[] array = (Pig []) new Object[capacity];
+        T[] array = (T []) new Object[capacity];
         System.arraycopy(items, nextFirst + 1, array, 0, size - nextFirst - 1);
         System.arraycopy(items, 0, array, size - nextFirst - 1, nextFirst + 1);
         items = array;
     }
 
-    public Iterator<Pig> iterator() {
-        return Arrays.stream(items).iterator();
+    private class ArrayIterator implements Iterator<T> {
+        public int pos;
+        public ArrayIterator() {
+            pos = 0;
+        }
+        @Override
+        public boolean hasNext() {
+            return pos < size;
+        }
+
+        @Override
+        public T next() {
+            T returnItem = items[pos];
+            pos += 1;
+            return returnItem;
+        }
     }
 
+    @Override
+    public Iterator<T> iterator() {
+        return new ArrayIterator();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null){
+            return false;
+        }
+        if (this.getClass() != o.getClass()){
+            return false;
+        }
+        ArrayDeque<T> other = (ArrayDeque<T>) o;
+        if (this.size() != other.size()) {
+            return false;
+        }
+        for (int i = 0; i < this.size; i += 1) {
+            if (!this.items[i].equals(other.items[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

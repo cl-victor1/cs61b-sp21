@@ -1,21 +1,21 @@
 package deque;
 
-
 import java.util.Iterator;
 
-public class LinkedListDeque<Pig> implements Deque<Pig> {
+public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private Node sentinel = new Node();
     private int size;
+
     public class Node {
-        private Pig item;
+        private T item;
         private Node next;
         private Node prev;
         public Node (){
         }
-        public Node (Pig object){
+        public Node (T object){
             this.item = object;
         }
-        public Node (Pig object, Node n) {
+        public Node (T object, Node n) {
             this.item = object;
             this.next = n;
         }
@@ -23,9 +23,10 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
 
     public LinkedListDeque() {
     }
+
     @Override
-    public void addFirst(Pig pig) {
-        Node item = new Node(pig);
+    public void addFirst(T T) {
+        Node item = new Node(T);
         Node temp = sentinel.next;
         sentinel.next = item;
         item.prev = sentinel;
@@ -38,9 +39,10 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
         }
         this.size++;
     }
+
     @Override
-    public void addLast(Pig pig) {
-        Node item = new Node(pig);
+    public void addLast(T T) {
+        Node item = new Node(T);
         if (sentinel.prev == null) {
             sentinel.prev = item;
             item.next = sentinel;
@@ -55,13 +57,14 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
         }
         this.size++;
     }
+
     @Override
-    public Pig removeFirst() {
+    public T removeFirst() {
         if (sentinel.next == null) {
             return null;
         }
         Node first = sentinel.next;
-        Pig value = first.item;
+        T value = first.item;
         if (first.next != sentinel) {
             first.prev = null;
             sentinel.next = first.next;
@@ -76,13 +79,14 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
         this.size--;
         return value;
     }
+
     @Override
-    public Pig removeLast() {
+    public T removeLast() {
         if (sentinel.prev == null) {
             return null;
         }
         Node last = sentinel.prev;
-        Pig value = last.item;
+        T value = last.item;
         if (last.prev != sentinel) {
             last.next = null;
             sentinel.prev = last.prev;
@@ -102,6 +106,7 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
     public int size() {
         return this.size;
     }
+
     @Override
     public void printDeque() {
         int index = 0;
@@ -112,8 +117,9 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
             index++;
         }
     }
+
     @Override
-    public Pig get(int position) {
+    public T get(int position) {
         if (position >= size()) {
             return null;
         }
@@ -126,8 +132,8 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
         return start.item;
     }
 
-    Node index = sentinel;
-    public Pig getRecursive(int pos) {
+    public T getRecursive(int pos) {
+        Node index = sentinel;
         if (pos >= size()) {
             return null;
         }
@@ -141,7 +147,51 @@ public class LinkedListDeque<Pig> implements Deque<Pig> {
         }
     }
 
-    public Iterator<Pig> iterator() {
-        return null;
+    @Override
+    public Iterator<T> iterator() {
+        return new LLDequeIterator();
     }
+
+    private class LLDequeIterator implements Iterator<T> {
+        private Node current = sentinel;
+        @Override
+        public boolean hasNext() {
+            return current.next != null;
+        }
+
+        @Override
+        public T next() {
+            T returnItem = current.next.item;
+            current = current.next;
+            return returnItem;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (this.getClass() != o.getClass()){
+            return false;
+        }
+        LinkedListDeque<T> other = (LinkedListDeque<T>) o;
+        if (this.size() != other.size()) {
+            return false;
+        }
+        Node index1 = this.sentinel;
+        Node index2 = other.sentinel;
+        while (index1.next != null) {
+            if (index1.next.item != index2.next.item) {
+                return false;
+            }
+            index1 = index1.next;
+            index2 = index2.next;
+        }
+        return true;
+    }
+
 }

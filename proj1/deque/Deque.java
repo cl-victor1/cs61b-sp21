@@ -2,14 +2,14 @@ package deque;
 
 import java.util.Iterator;
 
-public interface Deque<Pig>  {
-    void addFirst(Pig pig);
+public interface Deque<T>  {
+    void addFirst(T T);
 
-    void addLast(Pig pig);
+    void addLast(T T);
 
-    Pig removeFirst();
+    T removeFirst();
 
-    Pig removeLast();
+    T removeLast();
 
     default boolean isEmpty() {
         return size() == 0;
@@ -19,10 +19,10 @@ public interface Deque<Pig>  {
 
     void printDeque();
 
-    Pig get(int position);
+    T get(int position);
 
 
-    default Iterator<Pig> iterator() {
+    default Iterator<T> iterator() {
         return null;
     };
 }
