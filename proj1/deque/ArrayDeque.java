@@ -143,8 +143,13 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             }
         }
         else if (nextFirst >= nextLast) {
-            System.arraycopy(items, nextFirst + 1, array, 0, size - nextLast);
-            System.arraycopy(items, 0, array, size - nextLast, nextLast);
+            if (nextFirst < items.length - 1) {
+                System.arraycopy(items, nextFirst + 1, array, 0, size - nextLast);
+                System.arraycopy(items, 0, array, size - nextLast, nextLast);
+            }
+            else {
+                System.arraycopy(items, 0, array, 0, size);
+            }
         }
         items = array;
     }

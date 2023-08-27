@@ -45,7 +45,7 @@ public class ArrayDequeTest {
     @Test
     public void randomizedTest() {
         ArrayDeque<Integer> lld2 = new ArrayDeque<Integer>();
-        int N = 500;
+        int N = 8000;
         for (int i = 0; i < N; i += 1) {
             int operationNumber = StdRandom.uniform(0, 5);
             if (operationNumber == 0) {
