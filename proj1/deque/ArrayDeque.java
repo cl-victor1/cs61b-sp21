@@ -180,6 +180,9 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (o == null) {
             return false;
         }
+        if (!(o instanceof Deque)) {
+            return false;
+        }
 
         Deque<T> other = (ArrayDeque<T>) o;
         Deque<T> that = this;
