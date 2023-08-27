@@ -131,12 +131,14 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         return start.item;
     }
 
+    //pos自后向前，index自前向后。
+    private Node index = sentinel;
     public T getRecursive(int pos) {
-        Node index = sentinel;
         if (pos >= size()) {
             return null;
         }
         if (pos == 0) {
+            //初始化index
             Node temp = index;
             index = sentinel;
             return temp.next.item;
@@ -152,15 +154,15 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     }
 
     private class LLDequeIterator implements Iterator<T> {
-        private Node current = sentinel;
+        private Node current = sentinel.next;
         @Override
         public boolean hasNext() {
-            return current.next != null;
+            return current != null;
         }
 
         @Override
         public T next() {
-            T returnItem = current.next.item;
+            T returnItem = current.item;
             current = current.next;
             return returnItem;
         }
@@ -174,21 +176,20 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         if (o == null) {
             return false;
         }
-        if (this.getClass() != o.getClass()) {
+        if (!(o instanceof Deque)) {
             return false;
         }
-        LinkedListDeque<T> other = (LinkedListDeque<T>) o;
-        if (this.size() != other.size()) {
+
+        Deque<T> other = (Deque<T>) o;
+        Deque<T> that = this;
+
+        if (that.size() != other.size()) {
             return false;
         }
-        Node index1 = this.sentinel;
-        Node index2 = other.sentinel;
-        while (index1.next != null) {
-            if (index1.next.item != index2.next.item) {
+        for (int i = 0; i < that.size(); i += 1) {
+            if (!that.get(i).equals(other.get(i))) {
                 return false;
             }
-            index1 = index1.next;
-            index2 = index2.next;
         }
         return true;
     }
