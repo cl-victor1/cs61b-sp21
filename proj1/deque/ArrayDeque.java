@@ -21,7 +21,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     @Override
     public void addFirst(T item) {
         if (size == items.length) {
-            resize(size * 2);
+            resize(items.length * 2);
             nextFirst = items.length - 1;
             nextLast = size;
         }
@@ -37,7 +37,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     @Override
     public void addLast(T item) {
         if (size == items.length) {
-            resize(size * 2);
+            resize(items.length * 2);
             nextFirst = items.length - 1;
             nextLast = size;
         }
@@ -70,8 +70,8 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (size == 0) {
             return null;
         }
-        if ((float)size / items.length < 0.25) {
-            resize(size / 2);
+        if ((float)size / items.length < 0.25 && items.length >= 16) {
+            resize(items.length / 2);
             nextFirst = items.length - 1;
             nextLast = size;
         }
@@ -93,8 +93,8 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (size == 0) {
             return null;
         }
-        if ((float)size / items.length < 0.25) {
-            resize(size / 2);
+        if ((float)size / items.length < 0.25 && items.length >= 16) {
+            resize(items.length / 2);
             nextFirst = items.length - 1;
             nextLast = size;
         }
@@ -116,24 +116,36 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         int index = nextFirst + 1;
         int printed = 0;
         while (printed < size) {
-            if (nextFirst + 1 >= items.length) {
-                T first = items[0];
+            if (index >= items.length) {
+                index = 0;
+                T first = items[index];
                 System.out.println(first);
                 printed++;
-                nextFirst = 0;
+                index++;
             } else {
-                T first = items[nextFirst + 1];
+                T first = items[index];
                 System.out.println(first);
                 printed++;
-                nextFirst++;
+                index++;
             }
         }
     }
 
     private void resize(int capacity) {
         T[] array = (T []) new Object[capacity];
-        System.arraycopy(items, nextFirst + 1, array, 0, items.length - nextFirst - 1);
-        System.arraycopy(items, 0, array, items.length - nextFirst - 1, nextLast);
+        if (nextFirst < nextLast) {
+            if (nextLast > size) {
+                System.arraycopy(items, nextFirst + 1, array, 0, size);
+            }
+            else if (nextLast <= size) {
+                System.arraycopy(items, nextFirst + 1, array, 0, size - nextLast);
+                System.arraycopy(items, 0, array, size - nextLast, nextLast);
+            }
+        }
+        else if (nextFirst >= nextLast) {
+            System.arraycopy(items, nextFirst + 1, array, 0, size - nextLast);
+            System.arraycopy(items, 0, array, size - nextLast, nextLast);
+        }
         items = array;
     }
 

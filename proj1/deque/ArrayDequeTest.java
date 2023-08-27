@@ -11,17 +11,19 @@ public class ArrayDequeTest {
     public void getFirst() {
 
         ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
-        lld1.addFirst(1);
-        lld1.addFirst(2);
-        lld1.addFirst(3);
-        lld1.addFirst(4);
-        lld1.addFirst(5);
-        lld1.addFirst(6);
-        lld1.addFirst(7);
-        lld1.addFirst(8);
+        lld1.addLast(1);
+        lld1.addLast(2);
+        lld1.addLast(3);
+        lld1.addLast(4);
+        lld1.addLast(5);
+        lld1.addLast(6);
+        lld1.addLast(7);
+        lld1.addLast(8);
         lld1.addLast(9);
 
-        assertEquals(1, (long)lld1.get(8));
+        lld1.printDeque();
+
+        assertEquals(1, (long)lld1.get(0));
     }
 
     @Test
