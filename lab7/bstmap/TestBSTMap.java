@@ -32,7 +32,7 @@ public class TestBSTMap {
         b.clear();
         assertEquals(0, b.size());
         for (int i = 0; i < 455; i++) {
-            assertTrue(null == b.get("hi" + i) && !b.containsKey("hi" + i));
+            assertTrue(b.get("hi" + i) == null && !b.containsKey("hi" + i));
         }
     }
 
