@@ -22,7 +22,7 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K, V>{
         }
     }
 
-    BSTMap(){};
+    public BSTMap(){};
 
 
     /** Removes all of the mappings from this map. */
