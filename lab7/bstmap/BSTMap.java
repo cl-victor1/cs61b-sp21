@@ -26,11 +26,13 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K, V>{
 
 
     /** Removes all of the mappings from this map. */
+    @Override
     public void clear() {
         root = null;
     }
 
     /* Returns true if this map contains a mapping for the specified key. */
+    @Override
     public boolean containsKey(K key) {
         return containsKey(root, key);
     }
@@ -53,6 +55,7 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K, V>{
     /* Returns the value to which the specified key is mapped, or null if this
      * map contains no mapping for the key.
      */
+    @Override
     public V get(K key){
         return get(root, key);
     }
@@ -73,6 +76,7 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K, V>{
     }
 
     /* Returns the number of key-value mappings in this map. */
+    @Override
     public int size(){
         if (root == null) {
             return 0;
@@ -81,6 +85,7 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K, V>{
     }
 
     /* Associates the specified value with the specified key in this map. */
+    @Override
     public void put(K key, V value){
         root = put(root, key, value);
         root.size += 1;
@@ -101,6 +106,7 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K, V>{
 
     /* Returns a Set view of the keys contained in this map. Not required for Lab 7.
      * If you don't implement this, throw an UnsupportedOperationException. */
+    @Override
     public Set<K> keySet(){
         throw new UnsupportedOperationException("Unsupported");
     }
@@ -108,6 +114,7 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K, V>{
     /* Removes the mapping for the specified key from this map if present.
      * Not required for Lab 7. If you don't implement this, throw an
      * UnsupportedOperationException. */
+    @Override
     public V remove(K key){
         throw new UnsupportedOperationException("Unsupported");
     }
@@ -115,10 +122,11 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K, V>{
     /* Removes the entry for the specified key only if it is currently mapped to
      * the specified value. Not required for Lab 7. If you don't implement this,
      * throw an UnsupportedOperationException.*/
+    @Override
     public V remove(K key, V value){
         throw new UnsupportedOperationException("Unsupported");
     }
-
+    @Override
     public Iterator<K> iterator(){
         throw new UnsupportedOperationException("Unsupported");
     }
