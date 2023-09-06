@@ -28,9 +28,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     /* Instance Variables */
     private Collection<Node>[] buckets;
     private final Collection<Node>[] originalbuckets;
-    double loadFactor;
-    int size = 0;
-    HashSet<K> keySet = new HashSet<>();
+    private double loadFactor;
+    private int size = 0;
+    private HashSet<K> keySet = new HashSet<>();
     // You should probably define some more!
 
     /** Constructors */
@@ -171,7 +171,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         return this.size;
     }
 
-    public void resize(int newsize) {
+    private void resize(int newsize) {
         MyHashMap<K, V> temp = new MyHashMap<>(newsize);
         for (Collection<Node> bucket : buckets) {
             for (Node node : bucket) {
