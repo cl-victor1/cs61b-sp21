@@ -1,5 +1,7 @@
 package gitlet;
 
+import static gitlet.Repository.init;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author TODO
  */
@@ -10,13 +12,22 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO: what if args is empty?
+        if (args == null) {
+            System.out.println("What is your command?");
+            System.exit(0);
+        }
+
+        Repository myRepository = new Repository();
+
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
                 // TODO: handle the `init` command
+                init();
                 break;
             case "add":
                 // TODO: handle the `add [filename]` command
+               // add(args[1:]);
                 break;
             // TODO: FILL THE REST IN
         }
