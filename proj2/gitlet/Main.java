@@ -1,5 +1,8 @@
 package gitlet;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import static gitlet.Repository.init;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
@@ -10,7 +13,7 @@ public class Main {
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // TODO: what if args is empty?
         if (args == null) {
             System.out.println("What is your command?");
@@ -22,14 +25,20 @@ public class Main {
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
                 init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
-               // add(args[1:]);
+                myRepository.add(args[1]);
                 break;
-            // TODO: FILL THE REST IN
+            case "commit":
+                myRepository.commit(args[1]);
+                break;
+            case "checkout":
+                myRepository.checkout(Arrays.copyOfRange(args, 1, args.length));
+                break;
+            case "log":
+                myRepository.log();
+                break;
         }
     }
 }
