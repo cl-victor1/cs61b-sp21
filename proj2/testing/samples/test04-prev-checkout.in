@@ -35,4 +35,6 @@ D UID1 "${2}"
 > checkout ${UID1} -- wug.txt
 <<<
 = wug.txt wug.txt
-
+> checkout ${UID2} -- wug.txt
+<<<
+= wug.txt notwug.txt

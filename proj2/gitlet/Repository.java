@@ -37,7 +37,7 @@ public class Repository {
     //constructor
     public Repository() {}
 
-    public static void init() throws IOException {
+    public static void init() {
         if (GITLET_DIR.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
             System.exit(0);
@@ -116,13 +116,15 @@ public class Repository {
         writeContents(headFile, newCommitHash);
         writeContents(masterFile, newCommitHash);
 
+        // clear stageArea after commit
+        stageArea = new HashMap<>();
+        writeObject(stageFile, stageArea);
+
         // save newCommit
         File newCommitFile = join(COMMIT_DIR, newCommitHash);
         writeObject(newCommitFile, newCommit);
 
-        // clear stageArea after commit
-        stageArea = new HashMap<>();
-        writeObject(stageFile, stageArea);
+        //System.out.println(sha1((Object) serialize(newCommit)));
     }
 
     // retrieve Commit from its hashcode
@@ -175,7 +177,7 @@ public class Repository {
         }
 
         // java gitlet.Main checkout [branch name]
-        else {}
+        //else {}
     }
 
     public void log() {

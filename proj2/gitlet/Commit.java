@@ -4,10 +4,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Date; // TODO: You'll likely use this in this class
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 import static gitlet.Repository.COMMIT_DIR;
 import static gitlet.Repository.headFile;
@@ -19,7 +16,7 @@ import static gitlet.Utils.*;
  *
  *  @author Victor
  */
-public class Commit implements Serializable {
+public class Commit implements Serializable, Dumpable {
     /**
      * TODO: add instance variables here.
      *
@@ -34,7 +31,21 @@ public class Commit implements Serializable {
     private final String parent;
     // establish content of the commit: key is filename, value is hashcode of the blob
     private HashMap<String, String> content;
+    // private final String hash = calcHash();
 
+    @Override
+    public void dump() {
+        System.out.printf("parent: %s%ncontent: %s%n", parent, content.toString());
+    }
+
+    /**
+    private String calcHash() {
+        byte[] commitObj = serialize(this);
+        return sha1(commitObj);
+    }
+    public String ownHash() {
+        return this.hash;
+    }*/
 
     //initial commit
     public Commit() {
@@ -49,12 +60,17 @@ public class Commit implements Serializable {
         this.message = message;
         this.timestamp = new Date();
         this.parent = readContentsAsString(headFile);
+        this.content = new HashMap<>();
         //deep copy the content of parent
         Commit parentCommit = readObject(join(COMMIT_DIR, this.parent), Commit.class);
-        this.content = new HashMap<>(parentCommit.getMap());
+        ArrayList<String> filesToAdd = new ArrayList<>(parentCommit.getMap().keySet());
+        for (String fileName : filesToAdd) {
+            this.content.put(fileName, parentCommit.getMap().get(fileName));
+        }
+        // this.content = new HashMap<>(parentCommit.getMap());
     }
 
-    public HashMap getMap() {
+    public HashMap<String, String> getMap() {
         return this.content;
     }
 
