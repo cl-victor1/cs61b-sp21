@@ -39,6 +39,23 @@ public class Main {
             case "log":
                 myRepository.log();
                 break;
+            case "global-log":
+                myRepository.globalLog();
+                break;
+            case "rm":
+                myRepository.rm(args[1]);
+                break;
+            case "find":
+                myRepository.find(args[1]);
+                break;
+            case "status":
+                myRepository.status();
+                break;
+            case "branch":
+                myRepository.branch(args[1]);
+                break;
+            default:
+                System.out.println("Wrong command");
         }
     }
 }

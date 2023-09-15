@@ -67,7 +67,7 @@ public class Commit implements Serializable, Dumpable {
         for (String fileName : filesToAdd) {
             this.content.put(fileName, parentCommit.getMap().get(fileName));
         }
-        // this.content = new HashMap<>(parentCommit.getMap());
+        // this.content = new HashMap<>(parentCommit.getMap()): this will serialize all the commit tree
     }
 
     public HashMap<String, String> getMap() {
@@ -92,5 +92,9 @@ public class Commit implements Serializable, Dumpable {
 
     public void put(String key, String value) {
         this.content.put(key, value);
+    }
+
+    public void remove(String key) {
+        this.content.remove(key);
     }
 }
