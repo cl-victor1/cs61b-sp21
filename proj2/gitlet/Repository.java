@@ -65,7 +65,15 @@ public class Repository {
         writeContents(currentBranch, "master");
     }
 
+    private void verifyGitlet() {
+        if (!GITLET_DIR.exists()) {
+            System.out.println("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
+    }
+
     public void add(String filename) {
+        verifyGitlet();
         File toAddFile = join(CWD, filename);
         if (!toAddFile.exists()) {
             System.out.println("File does not exist.");
@@ -91,6 +99,7 @@ public class Repository {
     }
 
     public void commit(String message) {
+        verifyGitlet();
         Commit newCommit = new Commit(message);
 
         //retrieve staging area
@@ -149,6 +158,7 @@ public class Repository {
     }
 
     public void checkout(String... operands) {
+        verifyGitlet();
         //java gitlet.Main checkout -- [file name]
         if (operands.length == 2 && operands[0].equals("--")) {
             String filename = operands[1];
@@ -252,9 +262,15 @@ public class Repository {
             // update current Branch
             writeContents(currentBranch, branchName);
         }
+
+        else {
+            System.out.println("Incorrect operands.");
+            System.exit(0);
+        }
     }
 
     public void log() {
+        verifyGitlet();
         File CommitFile = join(COMMIT_DIR, readContentsAsString(headFile));
         Commit thisCommit = readObject(CommitFile, Commit.class);
         while (thisCommit != null) {
@@ -281,6 +297,7 @@ public class Repository {
     }
 
     public void globalLog() {
+        verifyGitlet();
         List<String> filenames = plainFilenamesIn(COMMIT_DIR);
         for (String filename : filenames) {
             File CommitFile = join(COMMIT_DIR, filename);
@@ -299,6 +316,7 @@ public class Repository {
     }
 
     public void rm(String filename) {
+        verifyGitlet();
         //retrieve staging area
         HashMap<String, String> stageArea = readObject(stageFile, HashMap.class);
         //retrieve the map of head commit
@@ -324,6 +342,7 @@ public class Repository {
     }
 
     public void find(String commitMessage){
+        verifyGitlet();
         List<String> filenames = plainFilenamesIn(COMMIT_DIR);
         //number of commits that have the given commit message
         int indicator = 0;
@@ -343,6 +362,7 @@ public class Repository {
     }
 
     public void status() {
+        verifyGitlet();
         List<String> branches = plainFilenamesIn(BRANCH_DIR);
         //retrieve staging area
         HashMap<String, String> stageArea = readObject(stageFile, HashMap.class);
@@ -390,6 +410,7 @@ public class Repository {
     }
 
     public void branch(String branch) {
+        verifyGitlet();
         File newBranch = join(BRANCH_DIR, branch);
         if (newBranch.exists()) {
             System.out.println("A branch with that name already exists.");
@@ -398,4 +419,73 @@ public class Repository {
         String currentCommitHash = readContentsAsString(headFile);
         writeContents(newBranch, currentCommitHash);
     }
+
+    public void rmBranch(String branch) {
+        verifyGitlet();
+        File toRemoveBranch = join(BRANCH_DIR, branch);
+        if (!toRemoveBranch.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if (branch.equals(readContentsAsString(currentBranch))) {
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        restrictedDelete(toRemoveBranch);
+    }
+
+    public void reset(String commitID) {
+        verifyGitlet();
+        File commitFile = join(COMMIT_DIR, commitID);
+        if (!commitFile.exists()) {
+            System.out.println("No commit with that id exists.");
+        }
+        // retrieve filenames tracked by the current branch
+        String currentCommitHash = readContentsAsString(headFile);
+        Set<String> currentKeySet= getCommitMap(currentCommitHash).keySet();
+        // retrieve filenames tracked by the target commit
+        Set<String> toCheckKeySet= getCommitMap(commitID).keySet();
+        // find the difference between above two sets based on toCheckKeySet
+        HashSet<String> diff1 = new HashSet<>();
+        for (String filename : toCheckKeySet) {
+            if (!currentKeySet.contains(filename)) {
+                diff1.add(filename);
+            }
+        }
+        for (String filename : diff1) {
+            File file = join(CWD, filename);
+            if (file.exists()) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+
+        HashMap<String,String> toCheckCommitMap = getCommitMap(commitID);
+        for (String filename : toCheckKeySet) {
+            String blobHash = toCheckCommitMap.get(filename);
+            File blobFile = join(BLOB_DIR, blobHash);
+            File workingFile = join(CWD, filename);
+            writeContents(workingFile, readContentsAsString(blobFile));
+        }
+
+        HashSet<String> diff2 = new HashSet<>();
+        for (String filename : currentKeySet) {
+            if (!toCheckKeySet.contains(filename)) {
+                diff2.add(filename);
+            }
+        }
+        for (String filename : diff2) {
+            File file = join(CWD, filename);
+            if (file.exists()) {
+                restrictedDelete(file);
+            }
+        }
+
+        // clear stageArea after commit
+        writeObject(stageFile, new HashMap<>());
+        // update HEAD
+        writeContents(headFile, commitID);
+    }
+
+
 }

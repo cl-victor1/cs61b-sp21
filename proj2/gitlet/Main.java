@@ -1,5 +1,6 @@
 package gitlet;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -16,7 +17,7 @@ public class Main {
     public static void main(String[] args) {
         // TODO: what if args is empty?
         if (args == null) {
-            System.out.println("What is your command?");
+            System.out.println("Please enter a command.");
             System.exit(0);
         }
 
@@ -54,8 +55,16 @@ public class Main {
             case "branch":
                 myRepository.branch(args[1]);
                 break;
+            case "rm-branch":
+                myRepository.rmBranch(args[1]);
+                break;
+            case "reset":
+                myRepository.reset(args[1]);
+                break;
+
             default:
-                System.out.println("Wrong command");
+                System.out.println("No command with that name exists.");
+                System.exit(0);
         }
     }
 }
