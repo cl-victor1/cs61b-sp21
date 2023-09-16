@@ -2,8 +2,8 @@ package gitlet;
 
 import java.io.File;
 
-import static gitlet.Repository.COMMIT_DIR;
-import static gitlet.Utils.join;
+
+
 
 /** A debugging class whose main program may be invoked as follows:
  *      java gitlet.DumpObj FILE...

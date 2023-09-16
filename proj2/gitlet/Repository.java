@@ -1,13 +1,13 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
+
 import java.util.*;
 
 import static gitlet.Utils.*;
 import static gitlet.Utils.readContentsAsString;
 
-// TODO: any imports you need here
+
 
 /** Represents a gitlet repository.
  *  This class contains helper functions for main class.
@@ -16,7 +16,6 @@ import static gitlet.Utils.readContentsAsString;
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
@@ -30,16 +29,17 @@ public class Repository {
     public static final File COMMIT_DIR = join(GITLET_DIR, "commits");
     public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
     public static final File BRANCH_DIR = join(GITLET_DIR, "branches");
-    public static File headFile = join(GITLET_DIR, "HEAD");
-    public static File stageFile = join(GITLET_DIR, "index");
-    public static File currentBranch = join(GITLET_DIR, "current");
+    public static final File headFile = join(GITLET_DIR, "HEAD");
+    private static final File stageFile = join(GITLET_DIR, "index");
+    private static final File currentBranch = join(GITLET_DIR, "current");
 
     //constructor
-    public Repository() {}
+    public Repository() { }
 
     public static void init() {
         if (GITLET_DIR.exists()) {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            System.out.println("A Gitlet version-control " +
+                    "system already exists in the current directory.");
             System.exit(0);
         }
 
@@ -83,7 +83,8 @@ public class Repository {
         String toAddFileString = readContentsAsString(toAddFile);
         String toAddFileHash = sha1(toAddFileString);
 
-        //check if the current working version of the file is identical to the version in the current commit
+        //check if the current working version of the file is identical
+        // to the version in the current commit
         String currentCommitHash = readContentsAsString(headFile);
         File currentCommitFile = join(COMMIT_DIR, currentCommitHash);
         Commit currentCommit = readObject(currentCommitFile, Commit.class);
@@ -112,15 +113,12 @@ public class Repository {
             System.out.println("Please enter a commit message.");
             System.exit(0);
         }
-
         //update content
         stageArea.forEach((key, value) -> {
             // untrack the file that has been staged for removal by the rm command
             if (value == null) {
                 newCommit.remove(key);
-            }
-
-            else {
+            } else {
                 // save files in .gitlet/blobs
                 File workingFile = join(CWD, key);
                 File blobFile = join(BLOB_DIR, value);
@@ -146,11 +144,13 @@ public class Repository {
         //System.out.println(sha1((Object) serialize(newCommit)));
     }
 
+
+
     // retrieve Commit from its hashcode
-    private HashMap<String,String> getCommitMap(String hash) {
-        File CommitFile = join(COMMIT_DIR, hash);
-        if (CommitFile.exists()) {
-            Commit thisCommit = readObject(CommitFile, Commit.class);
+    private HashMap<String, String> getCommitMap(String hash) {
+        File commitFile = join(COMMIT_DIR, hash);
+        if (commitFile.exists()) {
+            Commit thisCommit = readObject(commitFile, Commit.class);
             return thisCommit.getMap();
         } else {
             return null;
@@ -271,8 +271,8 @@ public class Repository {
 
     public void log() {
         verifyGitlet();
-        File CommitFile = join(COMMIT_DIR, readContentsAsString(headFile));
-        Commit thisCommit = readObject(CommitFile, Commit.class);
+        File commitFile = join(COMMIT_DIR, readContentsAsString(headFile));
+        Commit thisCommit = readObject(commitFile, Commit.class);
         while (thisCommit != null) {
             //convert Date format
             Date date = thisCommit.getDate();
@@ -288,8 +288,8 @@ public class Repository {
 
             //update thisCommit
             if (thisCommit.getParent() != null) {
-                CommitFile = join(COMMIT_DIR, thisCommit.getParent());
-                thisCommit = readObject(CommitFile, Commit.class);
+                commitFile = join(COMMIT_DIR, thisCommit.getParent());
+                thisCommit = readObject(commitFile, Commit.class);
             } else {
                 thisCommit = null;
             }
@@ -300,8 +300,8 @@ public class Repository {
         verifyGitlet();
         List<String> filenames = plainFilenamesIn(COMMIT_DIR);
         for (String filename : filenames) {
-            File CommitFile = join(COMMIT_DIR, filename);
-            Commit thisCommit = readObject(CommitFile, Commit.class);
+            File commitFile = join(COMMIT_DIR, filename);
+            Commit thisCommit = readObject(commitFile, Commit.class);
             Date date = thisCommit.getDate();
             Formatter formatter = new Formatter(Locale.US);
             formatter.format("Date: %1$ta %1$tb %1$te %1$tT %1$tY %1$tz", date);
@@ -320,7 +320,7 @@ public class Repository {
         //retrieve staging area
         HashMap<String, String> stageArea = readObject(stageFile, HashMap.class);
         //retrieve the map of head commit
-        HashMap<String,String> headCommitMap = getCommitMap(readContentsAsString(headFile));
+        HashMap<String, String> headCommitMap = getCommitMap(readContentsAsString(headFile));
 
         //Failure cases
         if (!stageArea.containsKey(filename) && !headCommitMap.containsKey(filename)) {
@@ -332,7 +332,8 @@ public class Repository {
             stageArea.remove(filename);
             writeObject(stageFile, stageArea);
         }
-        // If the file is tracked in the current commit, stage it for removal and remove the file from the working directory
+        // If the file is tracked in the current commit,
+        // stage it for removal and remove the file from the working directory
         if (headCommitMap.containsKey(filename)) {
             stageArea.put(filename, null);
             writeObject(stageFile, stageArea);
@@ -341,17 +342,16 @@ public class Repository {
         }
     }
 
-    public void find(String commitMessage){
+    public void find(String commitMessage) {
         verifyGitlet();
         List<String> filenames = plainFilenamesIn(COMMIT_DIR);
         //number of commits that have the given commit message
         int indicator = 0;
         for (String filename : filenames) {
-            File CommitFile = join(COMMIT_DIR, filename);
-            Commit thisCommit = readObject(CommitFile, Commit.class);
+            File commitFile = join(COMMIT_DIR, filename);
+            Commit thisCommit = readObject(commitFile, Commit.class);
             if (thisCommit.getMessage().equals(commitMessage)) {
                 System.out.println(sha1((Object) serialize(thisCommit)));
-                System.out.println();
                 indicator++;
             }
         }
@@ -443,9 +443,9 @@ public class Repository {
         }
         // retrieve filenames tracked by the current branch
         String currentCommitHash = readContentsAsString(headFile);
-        Set<String> currentKeySet= getCommitMap(currentCommitHash).keySet();
+        Set<String> currentKeySet = getCommitMap(currentCommitHash).keySet();
         // retrieve filenames tracked by the target commit
-        Set<String> toCheckKeySet= getCommitMap(commitID).keySet();
+        Set<String> toCheckKeySet = getCommitMap(commitID).keySet();
         // find the difference between above two sets based on toCheckKeySet
         HashSet<String> diff1 = new HashSet<>();
         for (String filename : toCheckKeySet) {
@@ -456,12 +456,13 @@ public class Repository {
         for (String filename : diff1) {
             File file = join(CWD, filename);
             if (file.exists()) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.out.println("There is an untracked file in the way; " +
+                        "delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
 
-        HashMap<String,String> toCheckCommitMap = getCommitMap(commitID);
+        HashMap<String, String> toCheckCommitMap = getCommitMap(commitID);
         for (String filename : toCheckKeySet) {
             String blobHash = toCheckCommitMap.get(filename);
             File blobFile = join(BLOB_DIR, blobHash);
@@ -486,6 +487,9 @@ public class Repository {
         writeObject(stageFile, new HashMap<>());
         // update HEAD
         writeContents(headFile, commitID);
+        // update current branch head
+        File currBranch = join(BRANCH_DIR, readContentsAsString(currentBranch));
+        writeContents(currBranch, commitID);
     }
 
 
