@@ -1,13 +1,8 @@
 package gitlet;
 
-
-
-
 import java.io.Serializable;
 import java.util.*;
-
-import static gitlet.Repository.COMMIT_DIR;
-import static gitlet.Repository.headFile;
+import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
@@ -18,7 +13,6 @@ import static gitlet.Utils.*;
  */
 public class Commit implements Serializable, Dumpable {
     /**
-
      *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
@@ -29,6 +23,7 @@ public class Commit implements Serializable, Dumpable {
     private final String message;
     private final Date timestamp;
     private final String parent;
+    private final String parentTwo;
     // establish content of the commit: key is filename, value is hashcode of the blob
     private HashMap<String, String> content;
     // private final String hash = calcHash();
@@ -52,6 +47,7 @@ public class Commit implements Serializable, Dumpable {
         this.message = "initial commit";
         this.timestamp = new Date(0);
         this.parent = null;
+        this.parentTwo = null;
         this.content = new HashMap<>();
     }
 
@@ -59,7 +55,8 @@ public class Commit implements Serializable, Dumpable {
     public Commit(String message) {
         this.message = message;
         this.timestamp = new Date();
-        this.parent = readContentsAsString(headFile);
+        this.parent = readContentsAsString(HEADFILE);
+        this.parentTwo = null;
         this.content = new HashMap<>();
         //deep copy the content of parent
         Commit parentCommit = readObject(join(COMMIT_DIR, this.parent), Commit.class);
@@ -76,6 +73,10 @@ public class Commit implements Serializable, Dumpable {
 
     public String getParent() {
         return this.parent;
+    }
+
+    public String getParentTwo() {
+        return this.parentTwo;
     }
 
     public Date getDate() {
