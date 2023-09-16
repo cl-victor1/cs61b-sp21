@@ -431,7 +431,7 @@ public class Repository {
             System.out.println("Cannot remove the current branch.");
             System.exit(0);
         }
-        restrictedDelete(toRemoveBranch);
+        toRemoveBranch.delete();
     }
 
     public void reset(String commitID) {
@@ -439,6 +439,7 @@ public class Repository {
         File commitFile = join(COMMIT_DIR, commitID);
         if (!commitFile.exists()) {
             System.out.println("No commit with that id exists.");
+            System.exit(0);
         }
         // retrieve filenames tracked by the current branch
         String currentCommitHash = readContentsAsString(headFile);
