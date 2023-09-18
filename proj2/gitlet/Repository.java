@@ -78,21 +78,22 @@ public class Repository {
         for (String filename : diff1) {
             File file = join(CWD, filename);
             if (file.exists()) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.out.println("There is an untracked file in the way; delete it, " +
+                        "or add and commit it first.");
                 System.exit(0);
             }
         }
         //Takes all files in the commit at the head of the given branch,
         // and puts them in the working directory, overwriting the versions of
         // the files that are already there if they exist.
-        HashMap<String,String> toCheckCommitMap = getCommitMap(commitID);
+        HashMap<String, String> toCheckCommitMap = getCommitMap(commitID);
         for (String filename : toCheckKeySet) {
             String blobHash = toCheckCommitMap.get(filename);
             File blobFile = join(BLOB_DIR, blobHash);
             File workingFile = join(CWD, filename);
             writeContents(workingFile, readContentsAsString(blobFile));
         }
-        // Any files that are tracked in the current branch but are not present in the checked-out branch are deleted.
+
         // find the difference between above two sets based on currentKeySet
         HashSet<String> diff2 = new HashSet<>();
         for (String filename : currentKeySet) {
@@ -112,10 +113,7 @@ public class Repository {
         writeContents(HEADFILE, commitID);
     }
 
-    public void mergeCommit(String message, String parentTwoHash) {
-        verifyGitlet();
-        Commit newCommit = new Commit(message, parentTwoHash);
-
+    private void commitHelper(Commit newCommit, String message) {
         //retrieve staging area
         HashMap<String, String> stageArea = readObject(STAGEFILE, HashMap.class);
         if (stageArea.isEmpty()) {
@@ -153,6 +151,144 @@ public class Repository {
         // save newCommit
         File newCommitFile = join(COMMIT_DIR, newCommitHash);
         writeObject(newCommitFile, newCommit);
+    }
+
+    private void mergeCommit(String message, String parentTwoHash) {
+        verifyGitlet();
+        Commit newCommit = new Commit(message, parentTwoHash);
+        commitHelper(newCommit, message);
+    }
+
+    private void mergeDifferentCases(String splitCommitHash, Commit currentCommit, File givenBranchFile) {
+        HashMap<String, String> splitCommitMap = getCommitMap(splitCommitHash);
+        HashMap<String, String> currentCommitMap = currentCommit.getMap();
+        HashMap<String, String> givenBranchMap = getCommitMap(readContentsAsString(givenBranchFile));
+        // ***different situations
+        splitCommitMap.forEach((key, value) -> {
+            // 1.Any files that have been modified in the given branch since the split point,
+            // but not modified in the current branch since the split point
+            if (currentCommitMap.containsKey(key) && currentCommitMap.get(key).equals(value)
+                    && givenBranchMap.containsKey(key) && !givenBranchMap.get(key).equals(value)) {
+                checkout(readContentsAsString(givenBranchFile),"--",key);
+                add(key);
+            }
+            // 6.Any files present at the split point, unmodified in the current branch,
+            // and absent in the given branch should be removed (and untracked)
+            else if (currentCommitMap.containsKey(key) &&
+                    currentCommitMap.get(key).equals(value) && !givenBranchMap.containsKey(key)) {
+                rm(key);
+            }
+            else if (currentCommitMap.containsKey(key) && givenBranchMap.containsKey(key)
+                    && !currentCommitMap.get(key).equals(value) && !givenBranchMap.get(key).equals(value)
+                    && !currentCommitMap.get(key).equals(givenBranchMap.get(key))) {
+                String result = "<<<<<<< HEAD\n" +
+                        readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
+                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
+                        ">>>>>>>\n";
+                writeContents(join(CWD, key), result);
+                add(key);
+                System.out.println("Encountered a merge conflict.");
+            }
+            else if (currentCommitMap.containsKey(key)
+                    && !currentCommitMap.get(key).equals(value) && !givenBranchMap.containsKey(key)) {
+                String result = "<<<<<<< HEAD\n" +
+                        readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
+                        + "=======\n" + "" + ">>>>>>>\n";
+                writeContents(join(CWD, key), result);
+                add(key);
+                System.out.println("Encountered a merge conflict.");
+            }
+            else if (!currentCommitMap.containsKey(key) && givenBranchMap.containsKey(key)
+                    && !givenBranchMap.get(key).equals(value)) {
+                String result = "<<<<<<< HEAD\n" + ""
+                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
+                        ">>>>>>>\n";
+                writeContents(join(CWD, key), result);
+                add(key);
+                System.out.println("Encountered a merge conflict.");
+            }
+        });
+        // 5.Any files that were not present at the split point and are
+        // present only in the given branch should be checked out and staged.
+        givenBranchMap.forEach((key, value) -> {
+            if (!currentCommitMap.containsKey(key) && !splitCommitMap.containsKey(key)) {
+                checkout(readContentsAsString(givenBranchFile),"--",key);
+                add(key);
+            }
+        });
+        // 8.the file was absent at the split point and has different contents
+        // in the given and current branches
+        givenBranchMap.forEach((key, value) -> {
+            if (!splitCommitMap.containsKey(key) && currentCommitMap.containsKey(key)
+                    && !currentCommitMap.get(key).equals(givenBranchMap.get(key))) {
+                String result = "<<<<<<< HEAD\n" +
+                        readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
+                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
+                        ">>>>>>>\n";
+                writeContents(join(CWD, key), result);
+                add(key);
+                System.out.println("Encountered a merge conflict.");
+            }
+        });
+    }
+
+    private String breadthFirstSearch(String branchName, HashSet<String> currentTrace) {
+        String splitCommitHash = null;
+        // initiate a queue to store backtracked commits of the given branch
+        Queue<Commit> queue = new LinkedList<>();
+        // store hash of visited commits
+        HashSet<String> visited = new HashSet<>();
+
+        Commit firstCommit = getCommit(join(BRANCH_DIR, branchName));
+        String firstCommitHash = hash(firstCommit);
+        queue.offer(firstCommit);
+        visited.add(firstCommitHash);
+        while (!queue.isEmpty()) {
+            Commit thisCommit = queue.poll();
+            // check if thisCommit is the split commit
+            if (currentTrace.contains(hash(thisCommit))) {
+                splitCommitHash = hash(thisCommit);
+                break;
+            }
+            // traverse parent
+            if (!visited.contains(thisCommit.getParent()) && thisCommit.getParent() != null) {
+                queue.offer(getCommit(thisCommit.getParent()));
+                visited.add(thisCommit.getParent());
+            }
+            // traverse parentTwo
+            if (!visited.contains(thisCommit.getParentTwo()) && thisCommit.getParentTwo() != null) {
+                queue.offer(getCommit(thisCommit.getParentTwo()));
+                visited.add(thisCommit.getParentTwo());
+            }
+        }
+        return splitCommitHash;
+    }
+
+    // backtrace the current branch
+    private HashSet<String> backtrace() {
+        // initiate a queue to store backtracked commits of HEAD
+        Queue<Commit> queue = new LinkedList<>();
+        // store hash of visited commits
+        HashSet<String> visited = new HashSet<>();
+
+        Commit currentCommit = getCommit(HEADFILE);
+        String currentCommitHash = readContentsAsString(HEADFILE);
+        queue.offer(currentCommit);
+        visited.add(currentCommitHash);
+        while (!queue.isEmpty()) {
+            Commit thisCommit = queue.poll();
+            // traverse parent
+            if (!visited.contains(thisCommit.getParent()) && thisCommit.getParent() != null) {
+                queue.offer(getCommit(thisCommit.getParent()));
+                visited.add(thisCommit.getParent());
+            }
+            // traverse parentTwo
+            if (!visited.contains(thisCommit.getParentTwo()) && thisCommit.getParentTwo() != null) {
+                queue.offer(getCommit(thisCommit.getParentTwo()));
+                visited.add(thisCommit.getParentTwo());
+            }
+        }
+        return visited;
     }
 
     public static void init() {
@@ -214,44 +350,7 @@ public class Repository {
     public void commit(String message) {
         verifyGitlet();
         Commit newCommit = new Commit(message);
-
-        //retrieve staging area
-        HashMap<String, String> stageArea = readObject(STAGEFILE, HashMap.class);
-        if (stageArea.isEmpty()) {
-            System.out.println("No changes added to the commit.");
-            System.exit(0);
-        }
-        if (message == null || message.trim().isEmpty()) {
-            System.out.println("Please enter a commit message.");
-            System.exit(0);
-        }
-        //update content
-        stageArea.forEach((key, value) -> {
-            // untrack the file that has been staged for removal by the rm command
-            if (value == null) {
-                newCommit.remove(key);
-            } else {
-                // save files in .gitlet/blobs
-                File workingFile = join(CWD, key);
-                File blobFile = join(BLOB_DIR, value);
-                writeContents(blobFile, readContentsAsString(workingFile));
-                newCommit.put(key, value);
-            }
-        });
-
-        //update branch and head
-        String newCommitHash = hash(newCommit);
-        writeContents(HEADFILE, newCommitHash);
-        File currBranch = join(BRANCH_DIR, readContentsAsString(CURRENTBRANCH));
-        writeContents(currBranch, newCommitHash);
-
-        // clear stageArea after commit
-        stageArea = new HashMap<>();
-        writeObject(STAGEFILE, stageArea);
-
-        // save newCommit
-        File newCommitFile = join(COMMIT_DIR, newCommitHash);
-        writeObject(newCommitFile, newCommit);
+        commitHelper(newCommit, message);
     }
 
     public void checkout(String... operands) {
@@ -260,19 +359,17 @@ public class Repository {
         if (operands.length == 2 && operands[0].equals("--")) {
             String filename = operands[1];
             //retrieve the map of head commit
-            HashMap<String,String> headCommitMap = getCommitMap(readContentsAsString(HEADFILE));
+            HashMap<String, String> headCommitMap = getCommitMap(readContentsAsString(HEADFILE));
             if (!headCommitMap.containsKey(filename)) {
                 System.out.println("File does not exist in that commit.");
                 System.exit(0);
-            }
-            else {
+            } else {
                 String blobHash = headCommitMap.get(filename);
                 File blobFile = join(BLOB_DIR, blobHash);
                 File workingFile = join(CWD, filename);
                 writeContents(workingFile, readContentsAsString(blobFile));
             }
-        }
-        //java gitlet.Main checkout [commit id] -- [file name]
+        } //java gitlet.Main checkout [commit id] -- [file name]
         else if (operands.length == 3 && operands[1].equals("--")) {
             String commitHash = operands[0];
             String filename = operands[2];
@@ -285,7 +382,7 @@ public class Repository {
                     }
                 }
             }
-            HashMap<String,String> thisCommitMap = getCommitMap(commitHash);
+            HashMap<String, String> thisCommitMap = getCommitMap(commitHash);
             if (thisCommitMap == null) {
                 System.out.println("No commit with that id exists.");
                 System.exit(0);
@@ -345,7 +442,8 @@ public class Repository {
             System.out.println("===");
             System.out.printf("commit %s%n", hash(thisCommit));
             if (thisCommit.getParentTwo() != null) {
-                System.out.printf("Merge: %s %s%n", thisCommit.getParent().substring(0,7), thisCommit.getParentTwo().substring(0,7));
+                System.out.printf("Merge: %s %s%n", thisCommit.getParent().substring(0,7),
+                        thisCommit.getParentTwo().substring(0,7));
             }
             System.out.println(formattedDate);
             System.out.println(thisCommit.getMessage());
@@ -520,7 +618,6 @@ public class Repository {
 
     public void merge(String givenBranch) {
         verifyGitlet();
-
         //***Failure cases
         if (!readObject(STAGEFILE, HashMap.class).isEmpty()) {
             System.out.println("You have uncommitted changes.");
@@ -535,7 +632,6 @@ public class Repository {
             System.out.println("Cannot merge a branch with itself.");
             System.exit(0);
         }
-
         // retrieve filenames tracked by the current branch
         String currentCommitHash = readContentsAsString(HEADFILE);
         Set<String> currentKeySet= getCommitMap(currentCommitHash).keySet();
@@ -552,16 +648,16 @@ public class Repository {
         for (String filename : diff1) {
             File file = join(CWD, filename);
             if (file.exists()) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.out.println("There is an untracked file in the way; " +
+                        "delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
-
         // ***find split commit
         // 1.backtrace the current branch
         HashSet<String> currentTrace = backtrace();
         // 2.BFS from givenBranch until meet a commit in currentTrace, and that is split commit
-        String splitCommitHash = BFS(givenBranch, currentTrace);
+        String splitCommitHash = breadthFirstSearch(givenBranch, currentTrace);
 
         // check if the split point is the same commit as the given branch
         if (splitCommitHash.equals(readContentsAsString(join(BRANCH_DIR, givenBranch)))) {
@@ -575,146 +671,11 @@ public class Repository {
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
         }
-
-        //retrieve staging area
-        HashMap<String, String> splitCommitMap = getCommitMap(splitCommitHash);
-        HashMap<String, String> currentCommitMap = currentCommit.getMap();
-        HashMap<String, String> givenBranchMap = getCommitMap(readContentsAsString(givenBranchFile));
-        // ***different situations
-        splitCommitMap.forEach((key, value) -> {
-            // 1.Any files that have been modified in the given branch since the split point,
-            // but not modified in the current branch since the split point
-            if (currentCommitMap.containsKey(key) && currentCommitMap.get(key).equals(value)
-                    && givenBranchMap.containsKey(key) && !givenBranchMap.get(key).equals(value)) {
-                checkout(readContentsAsString(givenBranchFile),"--",key);
-                add(key);
-            }
-            // 6.Any files present at the split point, unmodified in the current branch,
-            // and absent in the given branch should be removed (and untracked)
-            else if (currentCommitMap.containsKey(key) &&
-                    currentCommitMap.get(key).equals(value) && !givenBranchMap.containsKey(key)) {
-                // TODO: to verify rm
-                rm(key);
-                /*
-                HashMap<String, String> stageArea = readObject(STAGEFILE, HashMap.class);
-                stageArea.put(key, null);
-                writeObject(STAGEFILE, stageArea);
-                File fileToDelete = join(CWD, key);
-                restrictedDelete(fileToDelete);
-                 */
-            }
-            else if (currentCommitMap.containsKey(key) && givenBranchMap.containsKey(key)
-                    && !currentCommitMap.get(key).equals(value) && !givenBranchMap.get(key).equals(value)
-                    && !currentCommitMap.get(key).equals(givenBranchMap.get(key))) {
-                String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
-                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
-                        ">>>>>>>\n";
-                writeContents(join(CWD, key), result);
-                add(key);
-                System.out.println("Encountered a merge conflict.");
-            }
-            else if (currentCommitMap.containsKey(key)
-                    && !currentCommitMap.get(key).equals(value) && !givenBranchMap.containsKey(key)) {
-                String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
-                        + "=======\n" + "" + ">>>>>>>\n";
-                writeContents(join(CWD, key), result);
-                add(key);
-                System.out.println("Encountered a merge conflict.");
-            }
-            else if (!currentCommitMap.containsKey(key) && givenBranchMap.containsKey(key)
-                    && !givenBranchMap.get(key).equals(value)) {
-                String result = "<<<<<<< HEAD\n" + ""
-                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
-                        ">>>>>>>\n";
-                writeContents(join(CWD, key), result);
-                add(key);
-                System.out.println("Encountered a merge conflict.");
-            }
-        });
-        // 5.Any files that were not present at the split point and are
-        // present only in the given branch should be checked out and staged.
-        givenBranchMap.forEach((key, value) -> {
-            if (!currentCommitMap.containsKey(key) && !splitCommitMap.containsKey(key)) {
-                checkout(readContentsAsString(givenBranchFile),"--",key);
-                add(key);
-            }
-        });
-        // 8.the file was absent at the split point and has different contents in the given and current branches
-        givenBranchMap.forEach((key, value) -> {
-            if (!splitCommitMap.containsKey(key) && currentCommitMap.containsKey(key)
-            && !currentCommitMap.get(key).equals(givenBranchMap.get(key))) {
-                String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
-                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
-                        ">>>>>>>\n";
-                writeContents(join(CWD, key), result);
-                add(key);
-                System.out.println("Encountered a merge conflict.");
-            }
-        });
-
+        // go through different cases
+        mergeDifferentCases(splitCommitHash, currentCommit, givenBranchFile);
         // commit
-        String mergeMessage = "Merged " + givenBranch + " into " + readContentsAsString(CURRENTBRANCH) + ".";
+        String mergeMessage = "Merged " + givenBranch + " into "
+                + readContentsAsString(CURRENTBRANCH) + ".";
         mergeCommit(mergeMessage, readContentsAsString(join(BRANCH_DIR, givenBranch)));
     }
-
-    private String BFS(String branchName, HashSet<String> currentTrace) {
-        String splitCommitHash = null;
-        // initiate a queue to store backtracked commits of the given branch
-        Queue<Commit> queue = new LinkedList<>();
-        // store hash of visited commits
-        HashSet<String> visited = new HashSet<>();
-
-        Commit firstCommit = getCommit(join(BRANCH_DIR, branchName));
-        String firstCommitHash = hash(firstCommit);
-        queue.offer(firstCommit);
-        visited.add(firstCommitHash);
-        while (!queue.isEmpty()) {
-            Commit thisCommit = queue.poll();
-            // check if thisCommit is the split commit
-            if (currentTrace.contains(hash(thisCommit))) {
-                splitCommitHash = hash(thisCommit);
-                break;
-            }
-            // traverse parent
-            if (!visited.contains(thisCommit.getParent()) && thisCommit.getParent() != null) {
-                    queue.offer(getCommit(thisCommit.getParent()));
-                    visited.add(thisCommit.getParent());
-            }
-            // traverse parentTwo
-            if (!visited.contains(thisCommit.getParentTwo()) && thisCommit.getParentTwo() != null) {
-                    queue.offer(getCommit(thisCommit.getParentTwo()));
-                    visited.add(thisCommit.getParentTwo());
-            }
-        }
-        return splitCommitHash;
-    }
-
-    // backtrace the current branch
-    private HashSet<String> backtrace() {
-        // initiate a queue to store backtracked commits of HEAD
-        Queue<Commit> queue = new LinkedList<>();
-        // store hash of visited commits
-        HashSet<String> visited = new HashSet<>();
-
-        Commit currentCommit = getCommit(HEADFILE);
-        String currentCommitHash = readContentsAsString(HEADFILE);
-        queue.offer(currentCommit);
-        visited.add(currentCommitHash);
-        while (!queue.isEmpty()) {
-            Commit thisCommit = queue.poll();
-            // traverse parent
-            if (!visited.contains(thisCommit.getParent()) && thisCommit.getParent() != null) {
-                queue.offer(getCommit(thisCommit.getParent()));
-                visited.add(thisCommit.getParent());
-            }
-            // traverse parentTwo
-            if (!visited.contains(thisCommit.getParentTwo()) && thisCommit.getParentTwo() != null) {
-                queue.offer(getCommit(thisCommit.getParentTwo()));
-                visited.add(thisCommit.getParentTwo());
-            }
-        }
-        return visited;
-    }
-
-
 }

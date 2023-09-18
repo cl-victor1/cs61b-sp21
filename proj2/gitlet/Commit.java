@@ -64,7 +64,8 @@ public class Commit implements Serializable, Dumpable {
         for (String fileName : filesToAdd) {
             this.content.put(fileName, parentCommit.getMap().get(fileName));
         }
-        // alert: this.content = new HashMap<>(parentCommit.getMap()) will serialize all the commit tree
+        // alert: this.content = new HashMap<>(parentCommit.getMap())
+        // will serialize all the commit tree
     }
 
     //merge commits
