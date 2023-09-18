@@ -608,7 +608,7 @@ public class Repository {
                     && !currentCommitMap.get(key).equals(givenBranchMap.get(key))) {
                 String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
                         + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
-                        ">>>>>>>";
+                        ">>>>>>>\n";
                 writeContents(join(CWD, key), result);
                 add(key);
                 System.out.println("Encountered a merge conflict.");
@@ -616,7 +616,7 @@ public class Repository {
             else if (currentCommitMap.containsKey(key)
                     && !currentCommitMap.get(key).equals(value) && !givenBranchMap.containsKey(key)) {
                 String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
-                        + "=======\n" + "" + ">>>>>>>";
+                        + "=======\n" + "" + ">>>>>>>\n";
                 writeContents(join(CWD, key), result);
                 add(key);
                 System.out.println("Encountered a merge conflict.");
@@ -625,7 +625,7 @@ public class Repository {
                     && !givenBranchMap.get(key).equals(value)) {
                 String result = "<<<<<<< HEAD\n" + ""
                         + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
-                        ">>>>>>>";
+                        ">>>>>>>\n";
                 writeContents(join(CWD, key), result);
                 add(key);
                 System.out.println("Encountered a merge conflict.");
@@ -645,7 +645,7 @@ public class Repository {
             && !currentCommitMap.get(key).equals(givenBranchMap.get(key))) {
                 String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
                         + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
-                        ">>>>>>>";
+                        ">>>>>>>\n";
                 writeContents(join(CWD, key), result);
                 add(key);
                 System.out.println("Encountered a merge conflict.");
