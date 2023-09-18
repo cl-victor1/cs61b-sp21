@@ -669,13 +669,17 @@ public class Repository {
             }
             // traverse parent
             if (!visited.contains(thisCommit.getParent())) {
-                queue.offer(getCommit(thisCommit.getParent()));
-                visited.add(thisCommit.getParent());
+                if (thisCommit.getParent() != null) {
+                    queue.offer(getCommit(thisCommit.getParent()));
+                    visited.add(thisCommit.getParent());
+                }
             }
             // traverse parentTwo
             if (!visited.contains(thisCommit.getParentTwo())) {
-                queue.offer(getCommit(thisCommit.getParentTwo()));
-                visited.add(thisCommit.getParentTwo());
+                if (thisCommit.getParentTwo() != null) {
+                    queue.offer(getCommit(thisCommit.getParentTwo()));
+                    visited.add(thisCommit.getParentTwo());
+                }
             }
         }
         return splitCommitHash;
