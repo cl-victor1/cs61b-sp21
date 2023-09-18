@@ -644,7 +644,7 @@ public class Repository {
         });
 
         // commit
-        String mergeMessage = "Merged" + givenBranch + "into" + readContentsAsString(CURRENTBRANCH);
+        String mergeMessage = "Merged " + givenBranch + " into " + readContentsAsString(CURRENTBRANCH);
         mergeCommit(mergeMessage, readContentsAsString(join(BRANCH_DIR, givenBranch)));
     }
 
