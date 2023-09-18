@@ -64,7 +64,22 @@ public class Commit implements Serializable, Dumpable {
         for (String fileName : filesToAdd) {
             this.content.put(fileName, parentCommit.getMap().get(fileName));
         }
-        // this.content = new HashMap<>(parentCommit.getMap()) will serialize all the commit tree
+        // alert: this.content = new HashMap<>(parentCommit.getMap()) will serialize all the commit tree
+    }
+
+    //merge commits
+    public Commit(String message, String parentTwoHash) {
+        this.message = message;
+        this.timestamp = new Date();
+        this.parent = readContentsAsString(HEADFILE);
+        this.parentTwo = parentTwoHash;
+        this.content = new HashMap<>();
+        //deep copy the content of parent
+        Commit parentCommit = readObject(join(COMMIT_DIR, this.parent), Commit.class);
+        ArrayList<String> filesToAdd = new ArrayList<>(parentCommit.getMap().keySet());
+        for (String fileName : filesToAdd) {
+            this.content.put(fileName, parentCommit.getMap().get(fileName));
+        }
     }
 
     public HashMap<String, String> getMap() {
