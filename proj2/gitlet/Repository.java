@@ -444,7 +444,6 @@ public class Repository {
             System.out.println(formattedDate);
             System.out.println(thisCommit.getMessage());
             System.out.println();
-
             //update thisCommit
             if (thisCommit.getParent() != null) {
                 commitFile = join(COMMIT_DIR, thisCommit.getParent());
