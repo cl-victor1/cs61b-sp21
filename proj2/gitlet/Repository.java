@@ -429,7 +429,7 @@ public class Repository {
         File commitFile = join(COMMIT_DIR, readContentsAsString(HEADFILE));
         Commit thisCommit = readObject(commitFile, Commit.class);
         while (thisCommit != null) {
-            //convert Date format
+            // convert Date format
             Date date = thisCommit.getDate();
             Formatter formatter = new Formatter(Locale.US);
             formatter.format("Date: %1$ta %1$tb %1$te %1$tT %1$tY %1$tz", date);
