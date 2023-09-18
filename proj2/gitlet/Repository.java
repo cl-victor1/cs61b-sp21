@@ -276,6 +276,15 @@ public class Repository {
         else if (operands.length == 3 && operands[1].equals("--")) {
             String commitHash = operands[0];
             String filename = operands[2];
+            if (commitHash.length() < 40) {
+                List<String> allCommitsHash = plainFilenamesIn(COMMIT_DIR);
+                for (String hash : allCommitsHash) {
+                    if (commitHash.equals(hash.substring(0,8))) {
+                        commitHash = hash;
+                        break;
+                    }
+                }
+            }
             HashMap<String,String> thisCommitMap = getCommitMap(commitHash);
             if (thisCommitMap == null) {
                 System.out.println("No commit with that id exists.");
@@ -597,8 +606,8 @@ public class Repository {
             else if (currentCommitMap.containsKey(key) && givenBranchMap.containsKey(key)
                     && !currentCommitMap.get(key).equals(value) && !givenBranchMap.get(key).equals(value)
                     && !currentCommitMap.get(key).equals(givenBranchMap.get(key))) {
-                String result = "<<<<<<< HEAD%n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
-                        + "=======%n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
+                String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
+                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
                         ">>>>>>>";
                 writeContents(join(CWD, key), result);
                 add(key);
@@ -606,16 +615,16 @@ public class Repository {
             }
             else if (currentCommitMap.containsKey(key)
                     && !currentCommitMap.get(key).equals(value) && !givenBranchMap.containsKey(key)) {
-                String result = "<<<<<<< HEAD%n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
-                        + "=======%n" + "" + ">>>>>>>";
+                String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
+                        + "=======\n" + "" + ">>>>>>>";
                 writeContents(join(CWD, key), result);
                 add(key);
                 System.out.println("Encountered a merge conflict.");
             }
             else if (!currentCommitMap.containsKey(key) && givenBranchMap.containsKey(key)
                     && !givenBranchMap.get(key).equals(value)) {
-                String result = "<<<<<<< HEAD%n" + ""
-                        + "=======%n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
+                String result = "<<<<<<< HEAD\n" + ""
+                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
                         ">>>>>>>";
                 writeContents(join(CWD, key), result);
                 add(key);
@@ -634,8 +643,8 @@ public class Repository {
         givenBranchMap.forEach((key, value) -> {
             if (!splitCommitMap.containsKey(key) && currentCommitMap.containsKey(key)
             && !currentCommitMap.get(key).equals(givenBranchMap.get(key))) {
-                String result = "<<<<<<< HEAD%n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
-                        + "=======%n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
+                String result = "<<<<<<< HEAD\n" + readContentsAsString(join(BLOB_DIR, currentCommitMap.get(key)))
+                        + "=======\n" + readContentsAsString(join(BLOB_DIR, givenBranchMap.get(key))) +
                         ">>>>>>>";
                 writeContents(join(CWD, key), result);
                 add(key);
@@ -644,7 +653,7 @@ public class Repository {
         });
 
         // commit
-        String mergeMessage = "Merged " + givenBranch + " into " + readContentsAsString(CURRENTBRANCH);
+        String mergeMessage = "Merged " + givenBranch + " into " + readContentsAsString(CURRENTBRANCH) + ".";
         mergeCommit(mergeMessage, readContentsAsString(join(BRANCH_DIR, givenBranch)));
     }
 
