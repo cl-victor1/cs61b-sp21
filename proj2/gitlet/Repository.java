@@ -173,10 +173,9 @@ public class Repository {
                     && givenBranchMap.containsKey(key) && !givenBranchMap.get(key).equals(value)) {
                 checkout(readContentsAsString(givenBranchFile), "--", key);
                 add(key);
-            } // 6.Any files present at the split point, unmodified in the current branch,
-            // and absent in the given branch should be removed (and untracked)
-            else if (currentCommitMap.containsKey(key)
-                    && currentCommitMap.get(key).equals(value) && !givenBranchMap.containsKey(key)) {
+            } else if (currentCommitMap.containsKey(key)
+                    && currentCommitMap.get(key).equals(value)
+                    && !givenBranchMap.containsKey(key)) {
                 rm(key);
             } else if (currentCommitMap.containsKey(key) && givenBranchMap.containsKey(key)
                     && !currentCommitMap.get(key).equals(value)
@@ -372,8 +371,7 @@ public class Repository {
                 File workingFile = join(CWD, filename);
                 writeContents(workingFile, readContentsAsString(blobFile));
             }
-        } //java gitlet.Main checkout [commit id] -- [file name]
-        else if (operands.length == 3 && operands[1].equals("--")) {
+        } else if (operands.length == 3 && operands[1].equals("--")) {
             String commitHash = operands[0];
             String filename = operands[2];
             if (commitHash.length() < 40) {
@@ -399,8 +397,7 @@ public class Repository {
                 File workingFile = join(CWD, filename);
                 writeContents(workingFile, readContentsAsString(blobFile));
             }
-        } // java gitlet.Main checkout [branch name]
-        else if (operands.length == 1) {
+        } else if (operands.length == 1) {
             String branchName = operands[0];
             File toBranch = join(BRANCH_DIR, branchName);
             if (!toBranch.exists()) {
