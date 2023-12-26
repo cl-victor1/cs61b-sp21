@@ -52,7 +52,7 @@ public class Engine {
         //
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
-        ter.initialize(WIDTH, HEIGHT);
+
         TETile[][] world = new TETile[WIDTH][HEIGHT];
         if ((input.startsWith("N") || input.startsWith("n")) && (input.endsWith("S") || input.endsWith("s"))) {
             SEED = Long.parseLong(input.substring(1, input.length() - 1));
