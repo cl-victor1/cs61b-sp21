@@ -38,7 +38,7 @@ public class TERenderer {
         StdDraw.setXscale(0, width);
         StdDraw.setYscale(0, height);
 
-        StdDraw.clear(new Color(0, 0, 0));
+        StdDraw.clear(new Color(9, 7, 7));
 
         StdDraw.enableDoubleBuffering();
         StdDraw.show();
