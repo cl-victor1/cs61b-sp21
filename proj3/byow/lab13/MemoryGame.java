@@ -28,7 +28,7 @@ public class MemoryGame {
                                                    "You got this!", "You're a star!", "Go Bears!",
                                                    "Too easy for you!", "Wow, so impressive!"};
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         if (args.length < 1) {
             System.out.println("Please enter a seed");
             return;
@@ -54,31 +54,71 @@ public class MemoryGame {
         StdDraw.enableDoubleBuffering();
 
         //TODO: Initialize random number generator
+        this.rand = new Random(seed);
     }
 
     public String generateRandomString(int n) {
         //TODO: Generate random string of letters of length n
-        return null;
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            str.append(this.CHARACTERS[this.rand.nextInt(26)]);
+        }
+        return str.toString();
     }
 
     public void drawFrame(String s) {
         //TODO: Take the string and display it in the center of the screen
         //TODO: If game is not over, display relevant game information at the top of the screen
+        StdDraw.clear(Color.black);
+        Font font = new Font("Arial", Font.BOLD, 30);
+        StdDraw.setFont(font);
+        StdDraw.setPenColor(StdDraw.WHITE);
+        StdDraw.text(this.width / 2, this.height / 2, s);
+        StdDraw.show();
     }
 
-    public void flashSequence(String letters) {
+    public void flashSequence(String letters) throws InterruptedException {
         //TODO: Display each character in letters, making sure to blank the screen between letters
+        for (int i = 0; i < letters.length(); i++) {
+            drawFrame(Character.toString(letters.charAt(i)));
+            Thread.sleep(1000);
+            StdDraw.clear(Color.black);
+            Thread.sleep(500);
+        }
     }
 
     public String solicitNCharsInput(int n) {
         //TODO: Read n letters of player input
-        return null;
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            if (StdDraw.hasNextKeyTyped()) {
+                str.append(StdDraw.nextKeyTyped());
+            }
+            drawFrame(str.toString());
+        }
+        return str.toString();
     }
 
-    public void startGame() {
+    public void startGame() throws InterruptedException {
         //TODO: Set any relevant variables before the game starts
-
+        this.round = 1;
+        this.gameOver = false;
         //TODO: Establish Engine loop
+        while (!this.gameOver) {
+            drawFrame("Round: " + this.round);
+            String currString = generateRandomString(this.round);
+            flashSequence(currString);
+            Thread.sleep(3000);
+
+            if (solicitNCharsInput(this.round).equals(currString)) {
+                this.round += 1;
+                StdDraw.clear(Color.black);
+                Thread.sleep(500);
+            } else {
+                this.gameOver = true;
+                drawFrame("Game Over! You made it to round:" + this.round);
+            }
+        }
     }
 
 }

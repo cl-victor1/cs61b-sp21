@@ -1,6 +1,8 @@
 package byow.Core;
 
-public class Room{
+import java.io.Serializable;
+
+public class Room implements Serializable {
     Engine.Position leftUp;
     Engine.Position leftBottom;
     Engine.Position rightUp;
