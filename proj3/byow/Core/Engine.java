@@ -134,14 +134,7 @@ public class Engine implements Serializable {
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
 
-        //ter.initialize(WIDTH, HEIGHT);
-//        if ((input.startsWith("N") || input.startsWith("n")) && (input.endsWith("S") || input.endsWith("s"))) {
-//            SEED = Long.parseLong(input.substring(1, input.length() - 1));
-//            RANDOM = new Random(SEED);
-//            fillWithNothing(world);
-//            createWorld(world);
-//        }
-//        ter.renderFrame(world);
+        // ter.initialize(WIDTH, HEIGHT); The autograder cannot use StdDraw
         int option = getOption(input);
 
         switch (option) { // Enhanced switch created by IDE
@@ -157,7 +150,7 @@ public class Engine implements Serializable {
                 if (input.matches(regexSave)) {
                     saveWorld(this);
                 }
-               // ter.renderFrame(world);
+               // ter.renderFrame(world); The autograder cannot use StdDraw
             }
             // load game
             case 1 -> {
@@ -172,9 +165,7 @@ public class Engine implements Serializable {
                     if (input.matches(regexSave)) {
                         saveWorld(this);
                     }
-                   // ter.renderFrame(world);
-                } else {
-                    //System.exit(0);
+                   // ter.renderFrame(world); The autograder cannot use StdDraw
                 }
             }
         }
@@ -208,13 +199,6 @@ public class Engine implements Serializable {
     }
 
     public String getSeed (String input) {
-//        String regexSplit = "(?i)N|S";
-//        String []ret = input.split(regexSplit);
-//        String regexFind = "[0-9]*";
-//        for (String s : ret) {
-//            if (s.matches(regexFind))
-//                return s;
-//        }
         String regex = "(?i)^N([0-9]+)S.*";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
@@ -227,7 +211,8 @@ public class Engine implements Serializable {
 
     // check if it is wall or locked door
     public boolean checkWall(TETile[][] tiles, Position p) {
-        return tiles[p.x][p.y].character() == Tileset.WALL.character() || tiles[p.x][p.y].character() == Tileset.LOCKED_DOOR.character();
+        return tiles[p.x][p.y].character() == Tileset.WALL.character() ||
+                tiles[p.x][p.y].character() == Tileset.LOCKED_DOOR.character();
     }
 
     // move the avatar one step (exchange tiles)
@@ -239,7 +224,8 @@ public class Engine implements Serializable {
         tiles[nextPosition.x][nextPosition.y] = myTile;
         myPosition.x = nextPosition.x;
         myPosition.y = nextPosition.y;
-      //  ter.renderFrame(tiles);
+      // ter.renderFrame(tiles); The autograder cannot use StdDraw, but needs to be uncommented to
+        // correctly run interactWithKeyboard.
     }
 
     //moveFigure
@@ -287,7 +273,7 @@ public class Engine implements Serializable {
         StdDraw.show();
     }
 
-    // draw things
+    // draw anything
     public void drawThing(String s) {
         StdDraw.clear(Color.black);
         Font font = new Font("Arial", Font.BOLD, 30);
@@ -405,7 +391,7 @@ public class Engine implements Serializable {
         }
     }
 
-    // draw rooms
+    // create rooms
     public void createRoom(TETile[][] tiles, Room room) {
         if (!testOverlap(tiles, room)) {
             drawSingleRoom(tiles, room);
@@ -497,5 +483,4 @@ public class Engine implements Serializable {
             System.exit(0);
         }
     }
-
 }
