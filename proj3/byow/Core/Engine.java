@@ -134,7 +134,7 @@ public class Engine implements Serializable {
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
 
-//        ter.initialize(WIDTH, HEIGHT);
+        //ter.initialize(WIDTH, HEIGHT);
 //        if ((input.startsWith("N") || input.startsWith("n")) && (input.endsWith("S") || input.endsWith("s"))) {
 //            SEED = Long.parseLong(input.substring(1, input.length() - 1));
 //            RANDOM = new Random(SEED);
@@ -158,7 +158,7 @@ public class Engine implements Serializable {
                     saveWorld(this);
                     System.exit(0);
                 }
-             //   ter.renderFrame(world);
+               // ter.renderFrame(world);
             }
             // load game
             case 1 -> {
@@ -174,7 +174,7 @@ public class Engine implements Serializable {
                         saveWorld(this);
                         System.exit(0);
                     }
-                 //   ter.renderFrame(world);
+                   // ter.renderFrame(world);
                 } else {
                     System.exit(0);
                 }
@@ -185,12 +185,12 @@ public class Engine implements Serializable {
 
     public void multipleMove(String input) {
         // deal with motions
-        String regexMove = "(?i)^N[0-9]+S([WASD]+).*";
+        String regexMove = "(?i)^(N[0-9]+S|L)([WASD]+).*";
         Pattern patternMove = Pattern.compile(regexMove);
         Matcher matcherMove = patternMove.matcher(input);
         if (matcherMove.find()) {
             // store sequence of motions
-            String motion =  matcherMove.group(1);
+            String motion =  matcherMove.group(2);
             for (char key : motion.toCharArray()) {
                 moveFigure(this.world, key, this.myPosition);
             }
