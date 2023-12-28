@@ -152,6 +152,12 @@ public class Engine implements Serializable {
                 fillWithNothing(world);
                 createWorld(world);
                 multipleMove(input);
+                // deal with save and quit
+                String regexSave = "(?i).*(:Q)$";
+                if (input.matches(regexSave)) {
+                    saveWorld(this);
+                    System.exit(0);
+                }
              //   ter.renderFrame(world);
             }
             // load game
@@ -162,17 +168,17 @@ public class Engine implements Serializable {
                     // restore the loaded world
                     restoreWorld(engine);
                     multipleMove(input);
+                    // deal with save and quit
+                    String regexSave = "(?i).*(:Q)$";
+                    if (input.matches(regexSave)) {
+                        saveWorld(this);
+                        System.exit(0);
+                    }
                  //   ter.renderFrame(world);
                 } else {
                     System.exit(0);
                 }
             }
-        }
-        // deal with save and quit
-        String regexSave = "(?i).*(:Q)$";
-        if (input.matches(regexSave)) {
-            saveWorld(this);
-            System.exit(0);
         }
         return world;
     }
