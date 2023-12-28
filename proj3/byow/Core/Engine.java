@@ -171,11 +171,10 @@ public class Engine implements Serializable {
                     String regexSave = "(?i).*(:Q)$";
                     if (input.matches(regexSave)) {
                         saveWorld(this);
-                        System.exit(0);
                     }
                    // ter.renderFrame(world);
                 } else {
-                    System.exit(0);
+                    //System.exit(0);
                 }
             }
         }
