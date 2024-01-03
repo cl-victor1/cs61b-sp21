@@ -1,7 +1,7 @@
 # cs61B-sp21 
 This course is from University of California, Berkeley.
 
-## Course link:  
+## Course link 
 [https://inst.eecs.berkeley.edu/~cs61c/fa20/](https://inst.eecs.berkeley.edu/~cs61c/fa20/) 
 
 ## Note 
