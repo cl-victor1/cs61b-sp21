@@ -1,4 +1,4 @@
-# cs61B-sp21 
+# cs61B-spring21 
 This course is from University of California, Berkeley.
 
 ## Course Link 
